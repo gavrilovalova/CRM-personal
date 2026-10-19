@@ -29,8 +29,9 @@ export function AddContactDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="lg">
-          <PlusIcon />
+        {/* Smaller on phones so it fits in one row with the logo */}
+        <Button size="lg" className="max-sm:h-10 max-sm:px-3.5 max-sm:text-sm">
+          <PlusIcon className="max-sm:hidden" />
           Добавить контакт
         </Button>
       </DialogTrigger>
@@ -97,7 +98,7 @@ function AddContactForm({ onCreated }: { onCreated: () => void }) {
       )}
       <DialogFooter>
         <DialogClose asChild>
-          <Button type="button" variant="outline">
+          <Button type="button" variant="secondary">
             Отмена
           </Button>
         </DialogClose>

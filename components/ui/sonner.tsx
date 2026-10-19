@@ -30,10 +30,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          // Dark ink toasts, as the dark section of the landing
+          "--normal-bg": "var(--foreground)",
+          "--normal-text": "var(--background)",
+          "--normal-border": "var(--foreground)",
+          "--border-radius": "calc(var(--radius) * 1.4)",
+          fontFamily: "var(--font-onest)",
         } as React.CSSProperties
       }
       toastOptions={{

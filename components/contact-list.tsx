@@ -4,6 +4,7 @@ import { ContactRows } from "@/components/contact-rows";
 import { Skeleton } from "@/components/ui/skeleton";
 import { countContacts, listContacts } from "@/db/queries";
 import { formatCount } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 const CONTACT_FORMS = ["контакт", "контакта", "контактов"] as const;
 // Genitive forms for "из N …": "из 1 001 контакта", "из 1 000 контактов"
@@ -23,18 +24,21 @@ export async function ContactList({ searchParams }: { searchParams: Promise<Sear
 
   return (
     <section aria-label="Список контактов">
-      <div className="mb-3 flex items-baseline justify-between gap-4 px-1">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {query ? (
-            <>
-              Найдено: <span className="text-foreground">{items.length.toLocaleString("ru-RU")}</span> из{" "}
-              {formatCount(total, OF_CONTACT_FORMS)}
-            </>
-          ) : (
-            <>Все контакты · {formatCount(total, CONTACT_FORMS)}</>
-          )}
-        </h2>
-      </div>
+      {/* A label as on the landing: lime for the whole list, pink for search results */}
+      <h2
+        className={cn(
+          "mb-4 inline-flex rounded-full px-3.5 py-2 text-sm font-bold",
+          query ? "bg-pink" : "bg-lime",
+        )}
+      >
+        {query ? (
+          <>
+            Найдено: {items.length.toLocaleString("ru-RU")} из {formatCount(total, OF_CONTACT_FORMS)}
+          </>
+        ) : (
+          <>Все контакты · {formatCount(total, CONTACT_FORMS)}</>
+        )}
+      </h2>
 
       {items.length === 0 ? (
         <EmptyState query={query} />
@@ -48,19 +52,26 @@ export async function ContactList({ searchParams }: { searchParams: Promise<Sear
 function EmptyState({ query }: { query: string }) {
   const Icon = query ? SearchXIcon : UsersIcon;
   return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed bg-card px-6 py-16 text-center">
-      <Icon className="size-8 text-muted-foreground" />
+    <div className="flex flex-col items-center gap-3 rounded-3xl bg-muted px-6 py-16 text-center">
+      <span
+        className={cn(
+          "mb-1 flex size-12 items-center justify-center rounded-lg",
+          query ? "bg-pink" : "bg-primary text-primary-foreground",
+        )}
+      >
+        <Icon className="size-6" />
+      </span>
       {query ? (
         <>
-          <p className="font-medium">Никого не нашли по запросу «{query}»</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-lg font-bold">Никого не нашли по запросу «{query}»</p>
+          <p className="text-muted-foreground">
             Проверьте написание или поищите по части имени.
           </p>
         </>
       ) : (
         <>
-          <p className="font-medium">Пока нет ни одного контакта</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-lg font-bold">Пока нет ни одного контакта</p>
+          <p className="text-muted-foreground">
             Нажмите «Добавить контакт», чтобы записать первого человека.
           </p>
         </>
@@ -72,17 +83,19 @@ function EmptyState({ query }: { query: string }) {
 export function ContactListSkeleton() {
   return (
     <div aria-busy aria-label="Загружаем контакты">
-      <Skeleton className="mb-3 h-5 w-48" />
-      <div className="rounded-xl border bg-card">
-        {Array.from({ length: 10 }, (_, index) => (
-          <div key={index} className="flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-            <Skeleton className="size-9 rounded-full" />
-            <div className="grid flex-1 gap-1.5">
-              <Skeleton className="h-4 w-44" />
-              <Skeleton className="h-3 w-28" />
+      <Skeleton className="mb-4 h-9 w-56 rounded-full" />
+      <div className="rounded-3xl bg-muted p-2 pt-13 lg:p-3 lg:pt-14">
+        <div className="divide-y-2 divide-muted rounded-2xl bg-card">
+          {Array.from({ length: 10 }, (_, index) => (
+            <div key={index} className="flex items-center gap-3 px-3 py-3 lg:gap-4 lg:px-4">
+              <Skeleton className="size-11 rounded-full" />
+              <div className="grid flex-1 gap-1.5">
+                <Skeleton className="h-4 w-44" />
+                <Skeleton className="h-3 w-28" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

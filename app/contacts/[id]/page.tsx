@@ -11,11 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { getContact, listNotes } from "@/db/queries";
 import { formatCount, formatDate, formatDateTime } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export default function ContactPage({ params }: PageProps<"/contacts/[id]">) {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6">
-      <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2">
+    <main className="mx-auto max-w-5xl px-5 pt-4 pb-16 lg:px-10 lg:pt-6">
+      <Button asChild variant="ghost" size="sm" className="mb-4 -ml-3">
         <Link href="/">
           <ArrowLeftIcon />
           Все контакты
@@ -38,15 +39,24 @@ async function ContactView({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="flex min-w-0 flex-1 items-center gap-4">
-          <ContactAvatar id={contact.id} name={contact.name} className="size-16 text-xl" />
+      {/* Grey card with white buttons, as the contact card on the landing's first screen */}
+      <header className="mb-4 flex flex-col gap-5 rounded-3xl bg-muted p-5 sm:flex-row sm:items-center lg:mb-6 lg:rounded-4xl lg:p-8">
+        <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-5">
+          <ContactAvatar
+            id={contact.id}
+            name={contact.name}
+            className="size-16 text-xl lg:size-20 lg:text-2xl"
+          />
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold break-words">{contact.name}</h1>
-            {contact.about && <p className="text-muted-foreground">{contact.about}</p>}
+            <h1 className="text-3xl leading-heading font-extrabold tracking-heading break-words lg:text-5xl lg:tracking-display">
+              {contact.name}
+            </h1>
+            {contact.about && (
+              <p className="mt-1 text-muted-foreground lg:mt-2 lg:text-lg">{contact.about}</p>
+            )}
           </div>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2">
           {contact.phone && (
             <Button asChild variant="outline">
               <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}>
@@ -66,7 +76,7 @@ async function ContactView({ params }: { params: Promise<{ id: string }> }) {
         </div>
       </header>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+      <div className="grid items-start gap-4 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-6">
         <ContactDetails
           key={contact.updatedAt.toISOString()}
           contact={{
@@ -92,23 +102,28 @@ async function ContactView({ params }: { params: Promise<{ id: string }> }) {
           <CardContent className="grid gap-6">
             <NoteForm contactId={contact.id} />
             {notes.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-10 text-center">
-                <NotebookPenIcon className="size-6 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
+              <div className="flex flex-col items-center gap-3 rounded-2xl bg-muted px-6 py-10 text-center">
+                <span className="flex size-12 items-center justify-center rounded-lg bg-lime">
+                  <NotebookPenIcon className="size-6" />
+                </span>
+                <p className="text-muted-foreground">
                   Заметок пока нет. Запишите, о чём договорились после разговора.
                 </p>
               </div>
             ) : (
-              <ol className="grid gap-3">
-                {notes.map((note) => (
-                  <li key={note.id} className="rounded-lg border bg-muted/30 px-4 py-3">
+              <ol className="grid gap-2.5">
+                {notes.map((note, index) => (
+                  <li key={note.id} className="rounded-xl bg-muted px-4 py-3.5 lg:px-5 lg:py-4">
+                    {/* The newest note's date is highlighted, as in the landing's notes feed */}
                     <time
                       dateTime={note.createdAt.toISOString()}
-                      className="text-xs text-muted-foreground"
+                      className={cn("text-xs font-bold", index === 0 ? "text-primary" : "text-subtle")}
                     >
                       {formatDateTime(note.createdAt)}
                     </time>
-                    <p className="mt-1 text-sm whitespace-pre-wrap break-words">{note.body}</p>
+                    <p className="mt-1 text-base leading-relaxed whitespace-pre-wrap break-words">
+                      {note.body}
+                    </p>
                   </li>
                 ))}
               </ol>
@@ -123,16 +138,16 @@ async function ContactView({ params }: { params: Promise<{ id: string }> }) {
 function ContactSkeleton() {
   return (
     <div aria-busy aria-label="Загружаем карточку">
-      <div className="mb-6 flex items-center gap-4">
-        <Skeleton className="size-16 rounded-full" />
+      <div className="mb-4 flex items-center gap-4 rounded-3xl bg-muted p-5 lg:mb-6 lg:gap-5 lg:rounded-4xl lg:p-8">
+        <Skeleton className="size-16 rounded-full bg-background lg:size-20" />
         <div className="grid gap-2">
-          <Skeleton className="h-7 w-56" />
-          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-8 w-56 bg-background lg:h-12 lg:w-80" />
+          <Skeleton className="h-4 w-36 bg-background" />
         </div>
       </div>
-      <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
-        <Skeleton className="h-80 rounded-xl" />
-        <Skeleton className="h-96 rounded-xl" />
+      <div className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-6">
+        <Skeleton className="h-80 rounded-3xl" />
+        <Skeleton className="h-96 rounded-3xl" />
       </div>
     </div>
   );

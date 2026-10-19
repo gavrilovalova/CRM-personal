@@ -25,7 +25,7 @@ export function ContactDetails({ contact, addedOn }: ContactDetailsProps) {
         <CardTitle>Данные контакта</CardTitle>
         {!editing && (
           <CardAction>
-            <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+            <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
               <PencilIcon />
               Изменить
             </Button>
@@ -36,7 +36,7 @@ export function ContactDetails({ contact, addedOn }: ContactDetailsProps) {
         {editing ? (
           <EditContactForm contact={contact} onDone={() => setEditing(false)} />
         ) : (
-          <dl className="grid gap-4">
+          <dl className="grid gap-5">
             <DetailRow label="Кто это" value={contact.about} />
             <DetailRow label="Откуда знакомы" value={contact.howWeMet} />
             <DetailRow
@@ -55,13 +55,13 @@ export function ContactDetails({ contact, addedOn }: ContactDetailsProps) {
 
 function DetailRow({ label, value, href }: { label: string; value: string; href?: string }) {
   return (
-    <div className="grid gap-0.5">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-sm break-words">
+    <div className="grid gap-1">
+      <dt className="text-xs font-bold tracking-caps text-subtle uppercase">{label}</dt>
+      <dd className="text-base break-words">
         {!value ? (
           <span className="text-muted-foreground/70">не указано</span>
         ) : href ? (
-          <a href={href} className="underline-offset-4 hover:underline">
+          <a href={href} className="font-medium text-primary transition-colors hover:text-primary-hover">
             {value}
           </a>
         ) : (
@@ -107,7 +107,7 @@ function EditContactForm({
         </p>
       )}
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onDone}>
+        <Button type="button" variant="secondary" onClick={onDone}>
           Отмена
         </Button>
         <SubmitButton pending={pending}>Сохранить</SubmitButton>

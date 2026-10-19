@@ -43,7 +43,7 @@ export function NoteForm({ contactId }: { contactId: number }) {
         }}
         placeholder="Что обсудили, о чём договорились…"
         rows={3}
-        className="min-h-24 resize-y bg-background"
+        className="min-h-24 resize-y"
         aria-invalid={state.status === "error" ? true : undefined}
         aria-describedby={state.status === "error" ? "note-error" : undefined}
       />

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Onest } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-sans",
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin", "cyrillic"],
 });
 
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ru" className={`${geist.variable} h-full antialiased`}>
-      <body className="min-h-full bg-muted/40">
+    <html lang="ru" className={`${onest.variable} h-full antialiased`}>
+      <body className="min-h-full">
         {children}
         <Toaster position="top-center" theme="light" />
       </body>

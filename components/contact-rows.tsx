@@ -27,18 +27,13 @@ export function ContactRows({
   }, [highlightedId]);
 
   return (
-    <div className="rounded-xl border bg-card shadow-xs">
+    <div className="rounded-3xl bg-muted p-2 lg:p-3">
       {groupByLetter(items).map((group, groupIndex) => (
         <div key={group.letter + groupIndex}>
-          <div
-            className={cn(
-              "sticky top-16 z-10 border-b bg-muted/90 px-4 py-1 text-xs font-semibold text-muted-foreground backdrop-blur",
-              groupIndex === 0 ? "rounded-t-xl" : "border-t",
-            )}
-          >
+          <div className="sticky top-18 z-10 bg-muted/95 px-3 pt-3 pb-2 text-2xl leading-none font-extrabold tracking-heading backdrop-blur lg:px-4">
             {group.letter}
           </div>
-          <ul className="divide-y">
+          <ul className="divide-y-2 divide-muted overflow-hidden rounded-2xl bg-card">
             {group.items.map((contact) => (
               <ContactRow
                 key={contact.id}
@@ -81,16 +76,16 @@ function ContactRow({
       <Link
         href={`/contacts/${contact.id}`}
         className={cn(
-          "group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none",
-          highlighted && "bg-amber-50 hover:bg-amber-100/70",
+          "group flex items-center gap-3 px-3 py-3 transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none lg:gap-4 lg:px-4",
+          highlighted && "bg-lime/25 hover:bg-lime/40",
         )}
       >
         <ContactAvatar id={contact.id} name={contact.name} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate font-medium">{contact.name}</span>
+            <span className="truncate font-bold">{contact.name}</span>
             {highlighted && (
-              <Badge className="bg-amber-500 text-white">Только что добавлен</Badge>
+              <Badge className="-rotate-3 bg-lime text-foreground">Только что добавлен</Badge>
             )}
           </div>
           {contact.about && (
@@ -103,7 +98,7 @@ function ContactRow({
         <p className="hidden w-40 text-sm whitespace-nowrap text-muted-foreground tabular-nums lg:block">
           {contact.phone}
         </p>
-        <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+        <ChevronRightIcon className="size-5 shrink-0 text-muted-foreground/50 transition group-hover:translate-x-0.5 group-hover:text-primary" />
       </Link>
     </li>
   );

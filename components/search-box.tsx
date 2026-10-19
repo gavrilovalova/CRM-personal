@@ -68,7 +68,7 @@ export function SearchBox() {
 
   return (
     <div className="relative">
-      <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+      <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
       <Input
         ref={inputRef}
         type="search"
@@ -80,9 +80,9 @@ export function SearchBox() {
         placeholder="Найти по имени…"
         aria-label="Поиск по имени"
         autoComplete="off"
-        className="h-10 bg-background pr-10 pl-9 text-base [&::-webkit-search-cancel-button]:hidden"
+        className="h-12 pr-12 pl-12 [&::-webkit-search-cancel-button]:hidden"
       />
-      <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center">
+      <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center">
         {isPending ? (
           <Loader2Icon className="mr-1 size-4 animate-spin text-muted-foreground" aria-label="Ищем…" />
         ) : (
@@ -90,7 +90,7 @@ export function SearchBox() {
             <button
               type="button"
               onClick={clear}
-              className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="rounded-sm p-1 text-muted-foreground hover:bg-border hover:text-foreground"
               aria-label="Очистить поиск"
             >
               <XIcon className="size-4" />
@@ -105,12 +105,12 @@ export function SearchBox() {
 export function SearchBoxFallback() {
   return (
     <div className="relative">
-      <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+      <SearchIcon className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
       <Input
         disabled
         placeholder="Найти по имени…"
         aria-label="Поиск по имени"
-        className="h-10 bg-background pl-9 text-base"
+        className="h-12 pl-12"
       />
     </div>
   );
