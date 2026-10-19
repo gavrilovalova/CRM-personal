@@ -11,9 +11,17 @@ import { contacts, notes } from "./schema";
 const normalizeName = (value: string) => value.toLowerCase().replaceAll("ё", "е");
 const escapeLike = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 
-export async function listContacts(query: string) {
+function nameFilter(query: string) {
   const search = normalizeName(query.trim());
+  return search
+    ? sql`replace(lower(${contacts.name}), 'ё', 'е') like ${`%${escapeLike(search)}%`}`
+    : undefined;
+}
 
+// Alphabetical order of the list; the id keeps namesakes in a stable order
+const nameOrder = sql`${contacts.name} collate "ru-x-icu"`;
+
+export async function listContacts(query: string, limit: number) {
   return db
     .select({
       id: contacts.id,
@@ -23,19 +31,30 @@ export async function listContacts(query: string) {
       phone: contacts.phone,
     })
     .from(contacts)
-    .where(
-      search
-        ? sql`replace(lower(${contacts.name}), 'ё', 'е') like ${`%${escapeLike(search)}%`}`
-        : undefined,
-    )
-    .orderBy(sql`${contacts.name} collate "ru-x-icu"`, asc(contacts.id));
+    .where(nameFilter(query))
+    .orderBy(nameOrder, asc(contacts.id))
+    .limit(limit);
 }
 
 export type ContactListItem = Awaited<ReturnType<typeof listContacts>>[number];
 
-export async function countContacts(): Promise<number> {
-  const [row] = await db.select({ value: count() }).from(contacts);
+export async function countContacts(query = ""): Promise<number> {
+  const [row] = await db.select({ value: count() }).from(contacts).where(nameFilter(query));
   return row.value;
+}
+
+/** 1-based position of the contact in the alphabetical list; null when it does not exist. */
+export async function getContactPosition(id: number): Promise<number | null> {
+  const ranked = db
+    .select({
+      id: contacts.id,
+      position: sql<string>`row_number() over (order by ${nameOrder}, ${contacts.id})`.as("position"),
+    })
+    .from(contacts)
+    .as("ranked");
+  const [row] = await db.select({ position: ranked.position }).from(ranked).where(eq(ranked.id, id));
+  // row_number() is a bigint, which the driver returns as a string
+  return row ? Number(row.position) : null;
 }
 
 export async function getContact(id: number) {

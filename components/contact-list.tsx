@@ -1,14 +1,18 @@
 import { SearchXIcon, UsersIcon } from "lucide-react";
 
 import { ContactRows } from "@/components/contact-rows";
+import { ShowMoreButton } from "@/components/show-more-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { countContacts, listContacts } from "@/db/queries";
+import { countContacts, getContactPosition, listContacts } from "@/db/queries";
 import { formatCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const CONTACT_FORMS = ["контакт", "контакта", "контактов"] as const;
 // Genitive forms for "из N …": "из 1 001 контакта", "из 1 000 контактов"
 const OF_CONTACT_FORMS = ["контакта", "контактов", "контактов"] as const;
+
+// How many contacts the list shows at first and adds on every "Показать ещё"
+const PAGE_SIZE = 5;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -19,8 +23,13 @@ export async function ContactList({ searchParams }: { searchParams: Promise<Sear
   const params = await searchParams;
   const query = firstValue(params.q)?.trim() ?? "";
   const addedId = Number(firstValue(params.added)) || null;
+  const limit = await resolveLimit(Number(firstValue(params.limit)), query ? null : addedId);
 
-  const [items, total] = await Promise.all([listContacts(query), countContacts()]);
+  const [items, found, total] = await Promise.all([
+    listContacts(query, limit),
+    countContacts(query),
+    countContacts(),
+  ]);
 
   return (
     <section aria-label="Список контактов">
@@ -33,7 +42,7 @@ export async function ContactList({ searchParams }: { searchParams: Promise<Sear
       >
         {query ? (
           <>
-            Найдено: {items.length.toLocaleString("ru-RU")} из {formatCount(total, OF_CONTACT_FORMS)}
+            Найдено: {found.toLocaleString("ru-RU")} из {formatCount(total, OF_CONTACT_FORMS)}
           </>
         ) : (
           <>Все контакты · {formatCount(total, CONTACT_FORMS)}</>
@@ -45,8 +54,38 @@ export async function ContactList({ searchParams }: { searchParams: Promise<Sear
       ) : (
         <ContactRows items={items} highlightedId={addedId} />
       )}
+
+      {items.length < found && (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <ShowMoreButton href={showMoreHref(params, items.length + PAGE_SIZE)} />
+          <p className="text-sm text-muted-foreground">
+            Показаны {items.length.toLocaleString("ru-RU")} из {found.toLocaleString("ru-RU")}
+          </p>
+        </div>
+      )}
     </section>
   );
+}
+
+async function resolveLimit(requested: number, addedId: number | null) {
+  let limit = Number.isInteger(requested) && requested > PAGE_SIZE ? requested : PAGE_SIZE;
+  // A just added contact may be far down the list: show enough to include it
+  if (addedId) {
+    const position = await getContactPosition(addedId);
+    if (position) limit = Math.max(limit, Math.ceil(position / PAGE_SIZE) * PAGE_SIZE);
+  }
+  return limit;
+}
+
+// Keeps the search query and the highlighted contact, only shows more rows
+function showMoreHref(params: SearchParams, limit: number) {
+  const next = new URLSearchParams();
+  for (const key of ["q", "added"]) {
+    const value = firstValue(params[key]);
+    if (value) next.set(key, value);
+  }
+  next.set("limit", String(limit));
+  return `/?${next}`;
 }
 
 function EmptyState({ query }: { query: string }) {
@@ -86,7 +125,7 @@ export function ContactListSkeleton() {
       <Skeleton className="mb-4 h-9 w-56 rounded-full" />
       <div className="rounded-3xl bg-muted p-2 pt-13 lg:p-3 lg:pt-14">
         <div className="divide-y-2 divide-muted rounded-2xl bg-card">
-          {Array.from({ length: 10 }, (_, index) => (
+          {Array.from({ length: PAGE_SIZE }, (_, index) => (
             <div key={index} className="flex items-center gap-3 px-3 py-3 lg:gap-4 lg:px-4">
               <Skeleton className="size-11 rounded-full" />
               <div className="grid flex-1 gap-1.5">
