@@ -12,7 +12,8 @@ if (!databaseUrl) {
 
 // Reuse one connection pool across hot reloads in development
 const globalForDb = globalThis as unknown as { pgClient?: postgres.Sql };
-const client = globalForDb.pgClient ?? postgres(databaseUrl, { max: 10 });
+// prepare: false is required by the Supabase transaction pooler (port 6543)
+const client = globalForDb.pgClient ?? postgres(databaseUrl, { max: 10, prepare: false });
 if (process.env.NODE_ENV !== "production") {
   globalForDb.pgClient = client;
 }
