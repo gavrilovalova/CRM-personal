@@ -13,7 +13,7 @@ export default function HomePage({ searchParams }: PageProps<"/">) {
           <span className="flex size-9 items-center justify-center rounded-md bg-primary text-primary-foreground lg:size-11 lg:rounded-lg">
             <UserRoundIcon className="size-5 lg:size-6" />
           </span>
-          <span className="text-lg font-bold lg:text-xl">Личная CRM</span>
+          <span className="text-lg font-bold lg:text-xl">Relma</span>
         </div>
         <AddContactDialog />
       </header>

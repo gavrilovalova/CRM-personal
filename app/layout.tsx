@@ -11,7 +11,7 @@ const onest = Onest({
 });
 
 export const metadata: Metadata = {
-  title: "Личная CRM",
+  title: "Relma",
   description: "Люди, которых вы знаете лично, и контекст общения с ними",
 };
 
