@@ -34,6 +34,9 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      # Login prompt for the whole app (see proxy.ts)
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:?set BASIC_AUTH_USER in .env}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:?set BASIC_AUTH_PASSWORD in .env}
     ports:
       # Localhost only: Docker bypasses the firewall; nginx proxies app.relma.online here
       - "127.0.0.1:3000:3000"

@@ -32,5 +32,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // /health stays open: the deploy smoke check calls it without credentials
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|health$).*)"],
 };
