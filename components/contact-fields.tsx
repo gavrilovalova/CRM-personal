@@ -1,9 +1,10 @@
 import { Input } from "@/components/ui/input";
+import { TouchFrequencyField } from "@/components/touch-frequency-field";
 import { Label } from "@/components/ui/label";
 import type { ContactField } from "@/lib/validation";
 
 type FieldConfig = {
-  name: ContactField;
+  name: Exclude<ContactField, "touchFrequency">;
   label: string;
   placeholder: string;
   type?: "text" | "tel" | "email";
@@ -43,6 +44,14 @@ export function ContactFields({
       {field(NAME, autoFocus)}
       {field(ABOUT)}
       {field(HOW_WE_MET)}
+      <TouchFrequencyField
+        // React resets the form after a save attempt, which would roll the select back to its
+        // first value; remounting with the submitted value makes that the value to reset to
+        key={defaults?.touchFrequency || "none"}
+        id={`${idPrefix}-touchFrequency`}
+        defaultValue={defaults?.touchFrequency}
+        error={errors?.touchFrequency}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         {field(PHONE)}
         {field(EMAIL)}

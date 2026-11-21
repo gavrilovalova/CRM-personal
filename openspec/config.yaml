@@ -1,0 +1,38 @@
+schema: spec-driven
+
+context: |
+  Language: Russian (ru)
+  All artifacts must be written in Russian (ru).
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+  Пиши простыми словами: владелец продукта не разработчик.
+
+  Проект: личная CRM (Relma) - веду контакты людей, которых знаю лично.
+  Продуктовая идея, главный сценарий и ограничения - specs/01-продуктовая-идея.md.
+  Правила работы, стек и выкатка - CLAUDE.md; принятые продуктовые решения не меняй без вопроса.
+  Продуктовые решения принимает владелец: чего нет в запросе - спроси, не додумывай;
+  если что-то всё же додумано - вынеси это в открытые вопросы proposal.md.
+  Стек: Next.js (App Router), TypeScript, React, Tailwind CSS, shadcn/ui (только дизайн-токены),
+  PostgreSQL + Drizzle (схема и миграции в коде), pnpm. Выкатка: GitHub Actions -> GHCR -> VPS.
+  Код, имена, комментарии, коммиты - на английском; по-русски - тексты интерфейса и README.md.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

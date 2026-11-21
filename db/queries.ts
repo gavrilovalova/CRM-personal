@@ -1,7 +1,8 @@
 import "server-only";
 
-import { asc, count, desc, eq, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull, sql } from "drizzle-orm";
 
+import { TOUCH_FREQUENCIES, TOUCH_FREQUENCY_DAYS } from "@/lib/touch-frequency";
 import type { ContactInput } from "@/lib/validation";
 
 import { db } from "./index";
@@ -57,6 +58,62 @@ export async function getContactPosition(id: number): Promise<number | null> {
   return row ? Number(row.position) : null;
 }
 
+/**
+ * Contacts it is time to reconnect with: a frequency is set and at least that many full days
+ * have passed since the last note (or, with no notes, since the frequency was set or changed).
+ * Days are counted by the database clock, so every browser sees the same result.
+ */
+function overdueContactsQuery() {
+  const lastNotes = db
+    .select({
+      contactId: notes.contactId,
+      lastNoteAt: sql<string>`max(${notes.createdAt})`.as("last_note_at"),
+    })
+    .from(notes)
+    .groupBy(notes.contactId)
+    .as("last_notes");
+
+  const startedAt = sql`coalesce(${lastNotes.lastNoteAt}, ${contacts.touchFrequencySetAt})`;
+  const daysSince = sql<number>`floor(extract(epoch from now() - ${startedAt}) / 86400)::int`;
+  // Constants from code, inlined so Postgres compares integers rather than untyped parameters
+  const periodDays = sql<number>`(case ${contacts.touchFrequency} ${sql.join(
+    TOUCH_FREQUENCIES.map(
+      (frequency) => sql.raw(`when '${frequency}' then ${TOUCH_FREQUENCY_DAYS[frequency]}`),
+    ),
+    sql` `,
+  )} end)`;
+
+  const query = db
+    .select({
+      id: contacts.id,
+      name: contacts.name,
+      touchFrequency: contacts.touchFrequency,
+      daysSince: daysSince.as("days_since"),
+      hasNotes: sql<boolean>`${lastNotes.lastNoteAt} is not null`.as("has_notes"),
+    })
+    .from(contacts)
+    .leftJoin(lastNotes, eq(lastNotes.contactId, contacts.id))
+    .where(and(isNotNull(contacts.touchFrequency), sql`${daysSince} >= ${periodDays}`));
+
+  return { query, overdueDays: sql`${daysSince} - ${periodDays}` };
+}
+
+/** Most overdue first (days past the deadline); ties go alphabetically, as in the main list. */
+export async function listOverdueContacts() {
+  const { query, overdueDays } = overdueContactsQuery();
+  const rows = await query.orderBy(desc(overdueDays), nameOrder, asc(contacts.id));
+  // A frequency is always set here: the query filters out contacts without one
+  return rows.map((row) => ({ ...row, touchFrequency: row.touchFrequency! }));
+}
+
+export type OverdueContact = Awaited<ReturnType<typeof listOverdueContacts>>[number];
+
+export async function countOverdueContacts(): Promise<number> {
+  const overdue = overdueContactsQuery().query.as("overdue");
+  const [row] = await db.select({ value: count() }).from(overdue);
+  return row.value;
+}
+
 export async function getContact(id: number) {
   const [contact] = await db.select().from(contacts).where(eq(contacts.id, id));
   return contact ?? null;
@@ -73,7 +130,7 @@ export async function listNotes(contactId: number) {
 export async function createContact(input: ContactInput) {
   const [created] = await db
     .insert(contacts)
-    .values(input)
+    .values({ ...input, touchFrequencySetAt: input.touchFrequency ? sql`now()` : null })
     .returning({ id: contacts.id, name: contacts.name });
   return created;
 }
@@ -81,7 +138,15 @@ export async function createContact(input: ContactInput) {
 export async function updateContact(id: number, input: ContactInput) {
   const [updated] = await db
     .update(contacts)
-    .set(input)
+    .set({
+      ...input,
+      // The countdown restarts only when the frequency actually changes; SET expressions see the old row
+      touchFrequencySetAt: sql`case
+        when ${input.touchFrequency}::touch_frequency is null then null
+        when ${contacts.touchFrequency} is distinct from ${input.touchFrequency}::touch_frequency then now()
+        else ${contacts.touchFrequencySetAt}
+      end`,
+    })
     .where(eq(contacts.id, id))
     .returning({ id: contacts.id, name: contacts.name });
   return updated ?? null;

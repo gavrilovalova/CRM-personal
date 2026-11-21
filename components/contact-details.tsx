@@ -10,10 +10,12 @@ import { DeleteContactButton } from "@/components/delete-contact-button";
 import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ContactInput } from "@/lib/validation";
+import { TOUCH_FREQUENCY_LABELS, type TouchFrequency } from "@/lib/touch-frequency";
+import type { ContactField } from "@/lib/validation";
 
 type ContactDetailsProps = {
-  contact: ContactInput & { id: number };
+  // Form-ready values: an empty touchFrequency means "not set"
+  contact: Record<ContactField, string> & { id: number };
   addedOn: string;
   noteCount: number;
 };
@@ -48,6 +50,14 @@ export function ContactDetails({ contact, addedOn, noteCount }: ContactDetailsPr
                 href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
               />
               <DetailRow label="Почта" value={contact.email} href={`mailto:${contact.email}`} />
+              <DetailRow
+                label="Как часто общаться"
+                value={
+                  contact.touchFrequency
+                    ? TOUCH_FREQUENCY_LABELS[contact.touchFrequency as TouchFrequency]
+                    : ""
+                }
+              />
               <DetailRow label="В контактах с" value={addedOn} />
             </dl>
             <div className="grid border-t pt-5">

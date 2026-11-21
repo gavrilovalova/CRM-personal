@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { NO_TOUCH_FREQUENCY, TOUCH_FREQUENCIES } from "@/lib/touch-frequency";
+
 const maxLength = (max: number) => `Не длиннее ${max} символов`;
 
 export const contactInputSchema = z.object({
@@ -22,6 +24,13 @@ export const contactInputSchema = z.object({
       (value) => value === "" || z.email().safeParse(value).success,
       "Проверьте адрес почты — например, name@example.com",
     ),
+  // A missing field means "not set", e.g. a form that has no frequency selector
+  touchFrequency: z
+    .preprocess(
+      (value) => (value === "" ? NO_TOUCH_FREQUENCY : value),
+      z.enum([...TOUCH_FREQUENCIES, NO_TOUCH_FREQUENCY], { error: "Выберите частоту из списка" }),
+    )
+    .transform((value) => (value === NO_TOUCH_FREQUENCY ? null : value)),
 });
 
 export type ContactInput = z.infer<typeof contactInputSchema>;
