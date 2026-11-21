@@ -88,6 +88,7 @@ async function ContactView({ params }: { params: Promise<{ id: string }> }) {
             email: contact.email,
           }}
           addedOn={formatDate(contact.createdAt)}
+          noteCount={notes.length}
         />
 
         <Card>
