@@ -30,6 +30,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -90,6 +91,7 @@
   --accent: var(--surface);
   --accent-foreground: var(--ink);
   --destructive: #d92d20;
+  --destructive-foreground: #ffffff;
   --border: var(--surface-strong);
   --input: var(--surface-strong);
   --ring: var(--brand);

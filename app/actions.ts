@@ -95,6 +95,29 @@ export async function updateContact(
   }
 }
 
+export type DeleteContactResult =
+  | { status: "success"; name: string }
+  | { status: "error"; message: string };
+
+export async function deleteContact(contactId: number): Promise<DeleteContactResult> {
+  if (!isValidId(contactId)) {
+    return { status: "error", message: "Контакт не найден" };
+  }
+
+  try {
+    const contact = await queries.deleteContact(contactId);
+    if (!contact) {
+      return { status: "error", message: "Контакт не найден — возможно, его уже удалили" };
+    }
+    revalidatePath("/");
+    revalidatePath(`/contacts/${contactId}`);
+    return { status: "success", name: contact.name };
+  } catch (error) {
+    console.error("Failed to delete contact", error);
+    return { status: "error", message: "Не удалось удалить контакт. Попробуйте ещё раз." };
+  }
+}
+
 export async function addNote(
   contactId: number,
   _prev: NoteFormState,

@@ -87,6 +87,15 @@ export async function updateContact(id: number, input: ContactInput) {
   return updated ?? null;
 }
 
+/** Deletes the contact with all its notes (cascade). Returns null when it does not exist. */
+export async function deleteContact(id: number) {
+  const [deleted] = await db
+    .delete(contacts)
+    .where(eq(contacts.id, id))
+    .returning({ id: contacts.id, name: contacts.name });
+  return deleted ?? null;
+}
+
 /** Returns null when the contact does not exist. */
 export async function addNote(contactId: number, body: string) {
   const [contact] = await db

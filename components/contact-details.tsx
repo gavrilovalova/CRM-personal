@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { updateContact, type ContactFormState } from "@/app/actions";
 import { ContactFields } from "@/components/contact-fields";
+import { DeleteContactButton } from "@/components/delete-contact-button";
 import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,9 +15,10 @@ import type { ContactInput } from "@/lib/validation";
 type ContactDetailsProps = {
   contact: ContactInput & { id: number };
   addedOn: string;
+  noteCount: number;
 };
 
-export function ContactDetails({ contact, addedOn }: ContactDetailsProps) {
+export function ContactDetails({ contact, addedOn, noteCount }: ContactDetailsProps) {
   const [editing, setEditing] = useState(false);
 
   return (
@@ -36,17 +38,22 @@ export function ContactDetails({ contact, addedOn }: ContactDetailsProps) {
         {editing ? (
           <EditContactForm contact={contact} onDone={() => setEditing(false)} />
         ) : (
-          <dl className="grid gap-5">
-            <DetailRow label="Кто это" value={contact.about} />
-            <DetailRow label="Откуда знакомы" value={contact.howWeMet} />
-            <DetailRow
-              label="Телефон"
-              value={contact.phone}
-              href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
-            />
-            <DetailRow label="Почта" value={contact.email} href={`mailto:${contact.email}`} />
-            <DetailRow label="В контактах с" value={addedOn} />
-          </dl>
+          <div className="grid gap-6">
+            <dl className="grid gap-5">
+              <DetailRow label="Кто это" value={contact.about} />
+              <DetailRow label="Откуда знакомы" value={contact.howWeMet} />
+              <DetailRow
+                label="Телефон"
+                value={contact.phone}
+                href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
+              />
+              <DetailRow label="Почта" value={contact.email} href={`mailto:${contact.email}`} />
+              <DetailRow label="В контактах с" value={addedOn} />
+            </dl>
+            <div className="grid border-t pt-5">
+              <DeleteContactButton contactId={contact.id} name={contact.name} noteCount={noteCount} />
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
