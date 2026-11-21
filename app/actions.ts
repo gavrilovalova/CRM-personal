@@ -49,6 +49,12 @@ function parseContactForm(formData: FormData) {
 
 const isValidId = (id: number) => Number.isInteger(id) && id > 0;
 
+// The main page header and the keep-in-touch page both show who is overdue
+function revalidateKeepInTouch() {
+  revalidatePath("/");
+  revalidatePath("/keep-in-touch");
+}
+
 export async function createContact(
   _prev: ContactFormState,
   formData: FormData,
@@ -60,7 +66,7 @@ export async function createContact(
 
   try {
     const contact = await queries.createContact(data);
-    revalidatePath("/");
+    revalidateKeepInTouch();
     return { status: "success", contact };
   } catch (error) {
     console.error("Failed to create contact", error);
@@ -86,7 +92,7 @@ export async function updateContact(
     if (!contact) {
       return { status: "error", message: "Контакт не найден", values };
     }
-    revalidatePath("/");
+    revalidateKeepInTouch();
     revalidatePath(`/contacts/${contactId}`);
     return { status: "success", contact };
   } catch (error) {
@@ -109,7 +115,7 @@ export async function deleteContact(contactId: number): Promise<DeleteContactRes
     if (!contact) {
       return { status: "error", message: "Контакт не найден — возможно, его уже удалили" };
     }
-    revalidatePath("/");
+    revalidateKeepInTouch();
     revalidatePath(`/contacts/${contactId}`);
     return { status: "success", name: contact.name };
   } catch (error) {
@@ -137,6 +143,7 @@ export async function addNote(
       return { status: "error", message: "Контакт не найден" };
     }
     revalidatePath(`/contacts/${contactId}`);
+    revalidateKeepInTouch();
     return { status: "success" };
   } catch (error) {
     console.error("Failed to add note", error);

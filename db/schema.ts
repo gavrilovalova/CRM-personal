@@ -1,4 +1,7 @@
-import { index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+// How often I want to keep in touch with a contact; null means "not set"
+export const touchFrequency = pgEnum("touch_frequency", ["week", "month", "quarter", "year"]);
 
 export const contacts = pgTable("contacts", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -8,6 +11,9 @@ export const contacts = pgTable("contacts", {
   howWeMet: text("how_we_met").notNull().default(""),
   phone: text("phone").notNull().default(""),
   email: text("email").notNull().default(""),
+  touchFrequency: touchFrequency("touch_frequency"),
+  // When the frequency was last set or changed; the countdown starts here while there are no notes
+  touchFrequencySetAt: timestamp("touch_frequency_set_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

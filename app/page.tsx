@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { AddContactDialog } from "@/components/add-contact-dialog";
 import { ContactList, ContactListSkeleton } from "@/components/contact-list";
+import { KeepInTouchLink, KeepInTouchLinkView } from "@/components/keep-in-touch-link";
 import { SearchBox, SearchBoxFallback } from "@/components/search-box";
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
@@ -15,7 +16,12 @@ export default function HomePage({ searchParams }: PageProps<"/">) {
           </span>
           <span className="text-lg font-bold lg:text-xl">Relma</span>
         </div>
-        <AddContactDialog />
+        <div className="flex items-center gap-2 lg:gap-3">
+          <Suspense fallback={<KeepInTouchLinkView />}>
+            <KeepInTouchLink />
+          </Suspense>
+          <AddContactDialog />
+        </div>
       </header>
 
       <div className="mx-auto max-w-5xl px-5 pt-8 pb-4 lg:px-10 lg:pt-14 lg:pb-6">
