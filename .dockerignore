@@ -1,0 +1,16 @@
+# Only the app sources go into the image build
+.git
+.github
+.next
+node_modules
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.claude
+deploy
+landing-design
+personal-crm
+personal-crm-landing
+слайды
+*.md
